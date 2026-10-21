@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Online Headless Dice</title>
+<style>
+:root{color-scheme:dark;--text:#f5f5fa;--muted:#a9adbd}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:24px 16px 40px;background:radial-gradient(circle at top,#20233a 0,#0d0f16 55%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{width:min(760px,100%);margin:0 auto}
+h1{text-align:center;margin:4px 0 8px;font-size:clamp(1.8rem,6vw,2.6rem);letter-spacing:-.04em}
+.tagline{text-align:center;color:var(--muted);margin:0 0 24px}
+.dice{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0}
+.die-card{background:#171923;border:1px solid #303346;border-radius:18px;padding:14px;min-width:0}
+.die-label{color:var(--muted);font-size:.9rem;margin-bottom:10px}
+.die{width:100%;aspect-ratio:1;max-height:220px;border-radius:22px;border:1px solid #ffffff24;box-shadow:inset 0 1px 2px #ffffff20,0 10px 25px #0004;filter:saturate(.92)}
+label{display:block;color:var(--muted);font-size:.88rem;margin:10px 0 6px}
+select,button{font:inherit;border-radius:12px;padding:12px;width:100%;border:1px solid #383b50;background:#202332;color:var(--text)}
+select:focus,button:focus{outline:2px solid #8b7cff;outline-offset:2px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+button{cursor:pointer;font-weight:700}
+.primary{background:#7868ed;border-color:#9488ff}.secondary{background:#252838}
+.result{text-align:center;min-height:30px;margin:18px 0 0;font-weight:700;font-size:1.1rem}
+.small{color:var(--muted);font-size:.82rem;text-align:center;margin-top:12px}
+@media(max-width:420px){body{padding:18px 12px 30px}.dice{gap:10px}.die-card{padding:10px}.die{border-radius:16px}.controls{gap:8px}select,button{padding:11px 8px}}
+</style>
+</head>
+<body>
+<main>
+<h1>Online Headless Dice</h1>
+<p class="tagline">Four blank, numberless dice.</p>
+<section class="dice" aria-label="Dice">
+<div class="die-card"><div class="die-label">Die 1</div><div class="die" id="die0" style="background:#7868ed"></div><label for="color0">Color</label><select id="color0"><option value="random">Random</option><option value="purple" selected>Purple</option><option value="red">Red</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="orange">Orange</option><option value="green">Green</option></select></div>
+<div class="die-card"><div class="die-label">Die 2</div><div class="die" id="die1" style="background:#e85c64"></div><label for="color1">Color</label><select id="color1"><option value="random">Random</option><option value="purple">Purple</option><option value="red" selected>Red</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="orange">Orange</option><option value="green">Green</option></select></div>
+<div class="die-card"><div class="die-label">Die 3</div><div class="die" id="die2" style="background:#4d91ee"></div><label for="color2">Color</label><select id="color2"><option value="random">Random</option><option value="purple">Purple</option><option value="red">Red</option><option value="blue" selected>Blue</option><option value="yellow">Yellow</option><option value="orange">Orange</option><option value="green">Green</option></select></div>
+<div class="die-card"><div class="die-label">Die 4</div><div class="die" id="die3" style="background:#e9c84e"></div><label for="color3">Color</label><select id="color3"><option value="random">Random</option><option value="purple">Purple</option><option value="red">Red</option><option value="blue">Blue</option><option value="yellow" selected>Yellow</option><option value="orange">Orange</option><option value="green">Green</option></select></div>
+</section>
+<label for="rigged">Control each roll</label>
+<select id="rigged"><option value="random">Random result</option><option value="0">Die 1 wins</option><option value="1">Die 2 wins</option><option value="2">Die 3 wins</option><option value="3">Die 4 wins</option></select>
+<div class="controls"><button class="primary" id="roll" type="button">Roll</button><button class="secondary" id="reset" type="button">Reset</button></div>
+<p class="result" id="result" aria-live="polite"></p>
+<p class="small">Choose colors, then roll to reveal the next result.</p>
+</main>
+<script>
+(function(){
+const palette={purple:'#7868ed',red:'#e85c64',blue:'#4d91ee',yellow:'#e9c84e',orange:'#ed984b',green:'#4dbb86'};
+const defaults=['purple','red','blue','yellow'];
+const selectors=[0,1,2,3].map(i=>document.getElementById('color'+i));
+const dice=[0,1,2,3].map(i=>document.getElementById('die'+i));
+function updateDice(){
+ selectors.forEach((s,i)=>{
+   let choice=s.value;
+   if(choice==='random'){
+     const keys=Object.keys(palette);
+     choice=keys[Math.floor(Math.random()*keys.length)];
+   }
+   dice[i].style.backgroundColor=palette[choice]||palette[defaults[i]];
+ });
+}
+document.getElementById('roll').addEventListener('click',function(){
+ updateDice();
+ const mode=document.getElementById('rigged').value;
+ const winner=mode==='random'?Math.floor(Math.random()*4):Number(mode);
+ document.getElementById('result').textContent='Online Dice';
+ document.getElementById('result').dataset.winner=String(winner+1);
+});
+document.getElementById('reset').addEventListener('click',function(){
+ selectors.forEach((s,i)=>s.value=defaults[i]);
+ document.getElementById('rigged').value='random';
+ document.getElementById('result').textContent='';
+ updateDice();
+});
+})();
+</script>
+</body>
+</html>
